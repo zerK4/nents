@@ -11,7 +11,7 @@ export const ui: Registry = [
       "sonner",
       "separator",
     ],
-    dependencies: ["react-hook-form", "framer-motion", "react"],
+    dependencies: ["react-hook-form", "framer-motion", "react", "animejs"],
     files: [
       "components/forms/multiStepForm.tsx",
       "components/ui/cmdCtrlButton.tsx",

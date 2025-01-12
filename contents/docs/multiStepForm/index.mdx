@@ -1,0 +1,267 @@
+---
+title: Multi-step-form
+description: Install queriFy packages.
+resources: 
+  - src: https://zod.dev/
+    title: Zod
+  - src: https://ui.shadcn.com/
+    title: Shadcn
+  - src: https://motion.dev/
+    title: Framer-Motion
+---
+---
+
+### 1. Installation
+
+```bash
+npx shadcn@latest add https://ui.sepavl.com/r/multiStepForm.json
+```
+<Note type="success">
+  By default we use [shadcn](https://shadcn.com/) to install the components
+</Note>
+
+<Tabs defaultValue="preview">
+  <TabsList>
+    <TabsTrigger value="preview">Preview</TabsTrigger>
+    <TabsTrigger value="code">Code</TabsTrigger>
+  </TabsList>
+  <TabsContent value="preview">
+  <StepperFormExample />
+  </TabsContent>
+  <TabsContent value="code">
+  ```tsx showLineNumbers
+"use client";
+
+import MultistepForm, {
+  StepConfig,
+} from "@/registry/components/forms/multiStepForm";
+import { userSchema, userSchema2 } from "@/schema/userSchema";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { Input } from "../ui/input";
+
+function StepperFormExample() {
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const userForm = useForm<z.infer<typeof userSchema>>({
+    defaultValues: {
+      name: "",
+    },
+  });
+  const userForm2 = useForm<z.infer<typeof userSchema2>>({
+    defaultValues: {
+      email: "",
+    },
+  });
+
+  const steps: StepConfig[] = [
+    {
+      title: "Name",
+      form: userForm,
+      schema: userSchema,
+      component: (
+        <Form {...userForm}>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <FormField
+              name='name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+      ),
+    },
+    {
+      title: "Email",
+      form: userForm2,
+      schema: userSchema2,
+      component: (
+        <Form {...userForm2}>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <FormField
+              name='email'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+      ),
+    },
+    {
+      title: "Creating...",
+      component: null,
+    },
+  ];
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    console.log("first");
+    toast.success(
+      JSON.stringify(
+        {
+          ...userForm.getValues(),
+          ...userForm2.getValues(),
+        },
+        null,
+        2
+      )
+    );
+
+    setLoading(false);
+    setSuccess(true);
+  };
+
+  return (
+    <div className='p-20 rounded-xl border my-4'>
+      <MultistepForm
+        onSubmit={async () => handleSubmit()}
+        header={
+          <div className='my-4'>
+            <h2 className='text-2xl !p-0 !m-0 font-semibold'>
+              Create a new user
+            </h2>
+          </div>
+        }
+        isSuccess={success}
+        isPending={loading}
+        steps={steps}
+      />
+    </div>
+  );
+}
+
+export default StepperFormExample;
+
+  ```
+  </TabsContent>
+</Tabs>
+
+### 2. Usage
+
+#### Steps props
+
+`steps` array
+```tsx
+import {
+  StepConfig,
+} from "@/components/forms/multiStepForm";
+
+const steps: StepConfig[] = [
+    {
+      title: "Name",
+      form: userForm,
+      schema: userSchema,
+      component: (
+        <Form {...userForm}>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <FormField
+              name='name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+      ),
+    },
+    {
+      title: "Email",
+      form: userForm2,
+      schema: userSchema2,
+      component: (
+        <Form {...userForm2}>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <FormField
+              name='email'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+      ),
+    },
+    {
+      title: "Creating...",
+      component: null,
+    },
+  ];
+```
+
+`schema` represents the zod schema for the form.
+
+`form` is the react-hook-form form instance.
+
+`component` is the form component.
+
+`title` is the title of the step.
+
+<Note type="warning">
+  The last step is a must as it will be used for confirmation or error page.
+</Note>
+
+The last step should not contain a component, form or schema.
+
+---
+
+#### Multi-stepper props
+
+`onSubmit` is an async function that will return the data for all the forms combined.
+
+`header` is the header component of the multi stepper.
+
+`title` is the title of the multi stepper in case no header is present.
+
+`isSuccess` is a boolean that will be used to show a success message.
+
+`isError` is a boolean that will be used to show an error message.
+
+`isPending` is a boolean that will be used to show a loading animation.
+
+`successMessage` is the success message.
+
+`errorMessage` is the error message.
+
+`loadingAnimation` is the loading animation.

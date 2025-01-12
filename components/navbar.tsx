@@ -1,25 +1,11 @@
 import { ModeToggle } from "@/components/theme-toggle";
+import { cn } from "@/lib/utils";
 import { GithubIcon, TwitterIcon } from "lucide-react";
 import Link from "next/link";
-import { buttonVariants } from "./ui/button";
-import Search from "./search";
-import Anchor from "./anchor";
 import { SheetLeftbar } from "./leftbar";
-import { SheetClose } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
-import { page_routes } from "@/lib/routes-config";
-import Image from "next/image";
-
-export const NAVLINKS = [
-  {
-    title: "Documentation",
-    href: `/docs${page_routes[0].href}`,
-  },
-  {
-    title: "Blog",
-    href: "/blog",
-  },
-];
+import Search from "./search";
+import { Badge } from "./ui/badge";
+import { buttonVariants } from "./ui/button";
 
 export function Navbar() {
   return (
@@ -30,9 +16,6 @@ export function Navbar() {
           <div className='flex items-center gap-6'>
             <div className='hidden sm:flex'>
               <Logo />
-            </div>
-            <div className='items-center hidden gap-4 text-sm font-medium lg:flex text-muted-foreground'>
-              <NavMenu />
             </div>
           </div>
         </div>
@@ -69,36 +52,10 @@ export function Logo() {
   return (
     <Link href='/' className='flex items-center gap-2.5'>
       <h2 className={cn("text-md font-bold font-code flex items-center gap-2")}>
-        <Image src={"/logo.png"} alt='queryFi logo' height={30} width={30} />{" "}
-        queryfi
+        <Badge className='py-2 px-4 rounded-lg' variant={"secondary"}>
+          sepavl/ui
+        </Badge>
       </h2>
     </Link>
-  );
-}
-
-export function NavMenu({ isSheet = false }) {
-  return (
-    <>
-      {NAVLINKS.map((item) => {
-        const Comp = (
-          <Anchor
-            key={item.title + item.href}
-            activeClassName='!text-primary dark:font-medium font-semibold'
-            absolute
-            className='flex items-center gap-2 dark:text-stone-300/85 text-stone-800'
-            href={item.href}
-          >
-            {item.title}
-          </Anchor>
-        );
-        return isSheet ? (
-          <SheetClose key={item.title + item.href} asChild>
-            {Comp}
-          </SheetClose>
-        ) : (
-          Comp
-        );
-      })}
-    </>
   );
 }

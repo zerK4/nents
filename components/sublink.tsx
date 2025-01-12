@@ -29,7 +29,7 @@ export default function SubLink({
 
   const Comp = (
     <Anchor
-      className='hover:text-white ease-in-out duration-300 text-[14px]'
+      className='hover:text-white hover:bg-muted p-2 rounded-md ease-in-out duration-300 text-[14px]'
       activeClassName='text-orange-400 dark:font-medium font-semibold'
       href={href}
     >

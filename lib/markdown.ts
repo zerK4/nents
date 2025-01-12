@@ -20,6 +20,8 @@ import Outlet from "@/components/markdown/outlet";
 import { page_routes, ROUTES } from "./routes-config";
 import CodeBlock from "@/components/markdown/codeBlock";
 import { Button } from "@/components/ui/button";
+import { CodeBlockWrapper } from "@/components/codeBlockWrapper";
+import StepperFormExample from "@/components/examples/stepperFormExample";
 
 // add custom components
 const components: any = {
@@ -36,6 +38,8 @@ const components: any = {
   Outlet,
   CodeBlock,
   Button,
+  CodeBlockWrapper,
+  StepperFormExample,
 };
 
 // can be used for other pages like blogs, Guides etc
@@ -65,6 +69,10 @@ async function parseMdx<Frontmatter>(rawMdx: string) {
 export type BaseMdxFrontmatter = {
   title: string;
   description: string;
+  resources?: {
+    src: string;
+    title: string;
+  }[];
 };
 
 export async function getDocsForSlug(slug: string) {

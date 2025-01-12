@@ -5,6 +5,9 @@ import { notFound } from "next/navigation";
 import { getDocsForSlug } from "@/lib/markdown";
 import { Typography } from "@/components/typography";
 import { page_routes } from "@/lib/routes-config";
+import { Badge } from "@/components/ui/badge";
+import Link from "@/components/markdown/link";
+import { ExternalLink } from "lucide-react";
 
 type PageProps = {
   params: Promise<{ slug: string[] }>;
@@ -25,6 +28,19 @@ export default async function DocsPage(props: PageProps) {
         <DocsBreadcrumb paths={slug} />
         <Typography>
           <h1 className='text-3xl !-mt-0.5'>{res.frontmatter.title}</h1>
+          <div className='flex gap-2 flex-wrap'>
+            {res.frontmatter.resources?.map((res, index) => (
+              <Link target='_blank' key={index} href={res.src}>
+                <Badge
+                  variant={"secondary"}
+                  className='flex items-center gap-2'
+                >
+                  <ExternalLink size={16} />
+                  {res.title}
+                </Badge>
+              </Link>
+            ))}
+          </div>
           <div>{res.content}</div>
           <Pagination pathname={pathName} />
         </Typography>
