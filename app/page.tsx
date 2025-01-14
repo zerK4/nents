@@ -54,7 +54,7 @@ export default function Page() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
-          <div className='flex overflow-hidden'>
+          <div className='flex'>
             {letters.map((letter, index) => (
               <motion.span
                 key={index}
@@ -62,16 +62,16 @@ export default function Page() {
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{
                   opacity: [0, 1, 1, 0],
-                  scale: [0.5, 1.5, 1.5, 2],
+                  scale: [0.5, 1.5, 1.5, 2, 5],
                   y: [
                     0,
                     0,
+                    index % 2 === 0 ? -50 : 50,
                     index % 2 === 0 ? -100 : 100,
-                    index % 2 === 0 ? -200 : 200,
                   ],
                 }}
                 transition={{
-                  duration: 2,
+                  duration: 2 - index * 0.1,
                   times: [0, 0.2, 0.8, 1],
                   ease: "easeInOut",
                 }}
