@@ -38,7 +38,7 @@ export default function Page() {
     setIsTransitioning(true);
 
     setTimeout(() => {
-      router.push("/docs");
+      router.push("/docs/multiStepForm");
     }, 2000); // Adjust timing based on animation duration
   };
 
