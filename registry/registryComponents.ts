@@ -1,27 +1,10 @@
 import { Registry } from "./schema";
+import components from "./componentsSchema/sharedForm";
+import sfComponents from "./componentsSchema/sharedFormComponents";
+import multiStepForm from "./componentsSchema/multiStepForm";
 
-export const ui: Registry = [
-  {
-    name: "multiStepForm",
-    type: "registry:component",
-    registryDependencies: [
-      "button",
-      "tooltip",
-      "dialog",
-      "sonner",
-      "separator",
-    ],
-    dependencies: ["react-hook-form", "framer-motion", "react", "animejs"],
-    files: [
-      "components/forms/multiStepForm.tsx",
-      "components/ui/cmdCtrlButton.tsx",
-    ],
-  },
-  {
-    name: "cmdCtrlButton",
-    type: "registry:ui",
-    registryDependencies: ["tooltip"],
-    dependencies: ["react"],
-    files: ["components/ui/cmdCtrlButton.tsx"],
-  },
+export const ui: Registry[] = [
+  ...components,
+  ...sfComponents,
+  ...multiStepForm,
 ];

@@ -1,0 +1,92 @@
+---
+title: Text field
+description: The text field component for shared form
+---
+
+### Type
+
+```ts
+type TextConfig = BaseConfig & {
+  type?: "text";
+  textType?: "small" | "huge" | "number" | "password";
+};
+```
+`huge` represents the textarea
+
+`number` represents the number field to cover the floats too as it is harder in zod to define a float number
+
+`small` is the default text field
+
+`password` ? **for real**? 
+
+### Installation
+
+```bash
+npx shadcn@latest add https://ui.sepavl.com/r/textField.json
+```
+
+### Manual Installation
+
+<CodeBlockWrapper>
+```tsx
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { SharedFormFieldProps } from "../form";
+
+function TextField({
+  config,
+  label,
+  isOptional,
+  control,
+  fieldName,
+}: SharedFormFieldProps<"text">) {
+  return (
+    <FormField
+      key={fieldName}
+      control={control}
+      rules={config.rules}
+      name={fieldName}
+      render={({ field }) => (
+        <FormItem className={cn("flex flex-col", config.className)}>
+          <FormLabel
+            className={cn(config.labelClassName, "flex items-center gap-2")}
+          >
+            {label}
+            {isOptional && (
+              <span className='ml-1 text-muted-foreground'>(Optional)</span>
+            )}
+          </FormLabel>
+          <FormControl>
+            <Input
+              placeholder={config.placeholder || `Enter ${label}`}
+              {...field}
+              className={config.inputClassName}
+              type={
+                config.type === "text" && config.textType === "password"
+                  ? "password"
+                  : ""
+              }
+            />
+          </FormControl>
+          {config.description && (
+            <FormDescription>{config.description}</FormDescription>
+          )}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+export default TextField;
+
+```
+</CodeBlockWrapper>

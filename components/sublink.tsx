@@ -29,7 +29,7 @@ export default function SubLink({
 
   const Comp = (
     <Anchor
-      className='hover:text-white hover:bg-muted p-2 rounded-md ease-in-out duration-300 text-[14px]'
+      className='hover:text-white ease-in-out duration-300 text-[14px]'
       activeClassName='text-orange-400 dark:font-medium font-semibold'
       href={href}
     >
@@ -70,9 +70,12 @@ export default function SubLink({
         <CollapsibleContent>
           <div
             className={cn(
-              "flex flex-col items-start sm:text-sm dark:text-stone-300/85 text-stone-800 ml-0.5 mt-2.5 gap-3",
-              level > 0 && "pl-4 border-l ml-1.5"
+              "flex flex-col items-start sm:text-sm dark:text-stone-300/85 text-stone-800 ml-0.5 mt-2.5 gap-3"
             )}
+            style={{
+              marginLeft: `${level * 16}px`,
+              paddingLeft: "0.5rem",
+            }}
           >
             {items?.map((innerLink) => {
               const modifiedItems = {

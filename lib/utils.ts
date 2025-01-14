@@ -11,39 +11,62 @@ export function helperSearch(
   query: string,
   node: EachRoute,
   prefix: string,
-  currenLevel: number,
-  maxLevel?: number
-) {
+  currentLevel: number,
+  maxLevel?: number,
+  parentHierarchy: string[] = [] // Pass the hierarchy as an array
+): EachRoute[] {
   const res: EachRoute[] = [];
   let parentHas = false;
 
   const nextLink = `${prefix}${node.href}`;
-  if (!node.noLink && node.title.toLowerCase().includes(query.toLowerCase())) {
-    res.push({ ...node, items: undefined, href: nextLink });
+  const currentHierarchy = [...parentHierarchy, node.title]; // Build the current hierarchy
+
+  // Check if the current node matches the query
+  if (node.title.toLowerCase().includes(query.toLowerCase())) {
+    res.push({
+      ...node,
+      items: undefined, // Remove child items from the result
+      href: nextLink,
+      nest: currentLevel, // Add nesting level
+      parentTitle: currentHierarchy.join(" > "), // Join hierarchy into a single string
+    });
     parentHas = true;
   }
-  const goNext = maxLevel ? currenLevel < maxLevel : true;
-  if (goNext)
-    node.items?.forEach((item) => {
+
+  const goNext = maxLevel ? currentLevel < maxLevel : true;
+
+  if (goNext && node.items?.length) {
+    node.items.forEach((item) => {
       const innerRes = helperSearch(
         query,
         item,
         nextLink,
-        currenLevel + 1,
-        maxLevel
+        currentLevel + 1,
+        maxLevel,
+        currentHierarchy // Pass the updated hierarchy
       );
-      if (!!innerRes.length && !parentHas && !node.noLink) {
-        res.push({ ...node, items: undefined, href: nextLink });
+
+      // If child matches exist and parent hasn't been added yet
+      if (innerRes.length && !parentHas) {
+        res.push({
+          ...node,
+          items: undefined,
+          href: nextLink,
+          parentTitle: currentHierarchy.join(" > "),
+        });
         parentHas = true;
       }
+
       res.push(...innerRes);
     });
+  }
+
   return res;
 }
 
 export function advanceSearch(query: string) {
   return ROUTES.map((node) =>
-    helperSearch(query, node, "", 1, query.length == 0 ? 2 : undefined)
+    helperSearch(query, node, "", 0, query.length === 0 ? 2 : undefined)
   ).flat();
 }
 
@@ -89,7 +112,7 @@ export function leavingPage(url: string) {
   const leavingEl = document.querySelector(".leaving");
 
   if (leavingEl) {
-    leavingEl.innerHTML = "Leaving queryFi...";
+    leavingEl.innerHTML = "Leaving nents...";
   }
 
   const tl = anime.timeline();

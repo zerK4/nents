@@ -1,0 +1,373 @@
+---
+title: Installation
+description: Installation
+---
+
+### Run this to install the form
+ - with all fields
+```bash
+npx shadcn@latest add https://ui.sepavl.com/r/sharedForm.json
+```
+- Only the form & utils.
+```bash
+npx shadcn@latest add https://ui.sepavl.com/r/sharedFormEmpty.json
+```
+
+### Manual Installation
+
+1. Form Component
+
+<CodeBlockWrapper>
+    ```tsx
+    "use client";
+
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import { FieldConfig } from "@/lib/schemaConfigs";
+import { generateRandomId, magicRename } from "@/lib/sharedFormUtils";
+import React from "react";
+import { Control, SubmitHandler, UseFormReturn } from "react-hook-form";
+import { z } from "zod";
+import ImageField from "./components/imageField";
+import SelectField from "./components/selectField";
+import DateField from "./components/dateField";
+import TextField from "./components/textField";
+import TextareaField from "./components/textareaField";
+import NumberField from "./components/numberField";
+import BooleanField from "./components/booleanField";
+
+export type FieldConfigs = Record<string, FieldConfig>;
+
+export type SharedFormFieldProps<T extends keyof FieldConfigs> = {
+  fieldName: string;
+  control: Control<any>;
+  config: FieldConfigs[T];
+  label: string;
+  isOptional?: boolean;
+  schema?: any;
+};
+
+const renderField = <T extends z.ZodType<any, any>>(
+  index: number,
+  fieldName: string,
+  schema: T,
+  control: Control<any>,
+  fieldConfigs: FieldConfigs
+): React.ReactNode => {
+  const config = fieldConfigs[fieldName] || {};
+  const label = config.label || magicRename(fieldName);
+
+  // Check if the field should be hidden
+  if (config.hidden) {
+    return null;
+  }
+
+  // Determine if the field is optional
+  const isOptional =
+    schema instanceof z.ZodOptional ||
+    schema instanceof z.ZodNullable ||
+    schema instanceof z.ZodDefault ||
+    config.optional;
+
+  // Unwrap optional/nullable schemas
+  const baseSchema =
+    schema instanceof z.ZodOptional || schema instanceof z.ZodNullable
+      ? schema._def.innerType
+      : schema;
+
+  if (config.type === "image") {
+    return (
+      <ImageField
+        schema={baseSchema}
+        key={index}
+        fieldName={fieldName}
+        control={control}
+        config={config}
+        isOptional={isOptional}
+        label={label}
+      />
+    );
+  }
+
+  if (config.type === "select" || baseSchema instanceof z.ZodEnum) {
+    return (
+      <SelectField
+        key={index}
+        config={config}
+        isOptional={isOptional}
+        label={label}
+        fieldName={fieldName}
+        control={control}
+        schema={schema}
+      />
+    );
+  }
+
+  // Date handling for datetime schemas
+  if (baseSchema instanceof z.ZodDate) {
+    return (
+      <DateField
+        key={index}
+        config={config}
+        isOptional={isOptional}
+        label={label}
+        fieldName={fieldName}
+        control={control}
+        schema={baseSchema}
+      />
+    );
+  }
+
+  // String input
+  if (
+    baseSchema instanceof z.ZodString &&
+    config.type === "text" &&
+    config.textType !== "huge" &&
+    config.textType !== "number"
+  ) {
+    return (
+      <TextField
+        key={index}
+        fieldName={fieldName}
+        control={control}
+        config={config}
+        isOptional={isOptional}
+        label={label}
+        schema={baseSchema}
+      />
+    );
+  }
+
+  // String input
+  if (
+    baseSchema instanceof z.ZodString &&
+    config.type === "text" &&
+    config.textType === "huge"
+  ) {
+    return (
+      <TextareaField
+        key={index}
+        fieldName={fieldName}
+        control={control}
+        config={config}
+        isOptional={isOptional}
+        label={label}
+        schema={baseSchema}
+      />
+    );
+  }
+
+  // Number input
+  if (
+    baseSchema instanceof z.ZodNumber ||
+    config.type === "number" ||
+    (config.type === "text" && config.textType === "number")
+  ) {
+    return (
+      <NumberField
+        key={index}
+        config={config}
+        isOptional={isOptional}
+        label={label}
+        fieldName={fieldName}
+        control={control}
+        schema={baseSchema}
+      />
+    );
+  }
+
+  // Boolean (Checkbox)
+  if (baseSchema instanceof z.ZodBoolean) {
+    return (
+      <BooleanField
+        key={index}
+        config={config}
+        isOptional={isOptional}
+        label={label}
+        fieldName={fieldName}
+        control={control}
+        schema={baseSchema}
+      />
+    );
+  }
+
+  return null;
+};
+
+interface UniversalFormProps<
+  T extends z.ZodObject<any> | z.ZodEffects<z.ZodObject<any>>
+> {
+  schema: T;
+  onSubmit: SubmitHandler<z.infer<T>>;
+  fieldConfigs?: FieldConfigs;
+  submitButtonText?: string;
+  formClassName?: string;
+  submitButtonClassName?: string;
+  form: UseFormReturn;
+  showSeparator?: boolean;
+}
+
+function SharedForm<
+  T extends z.ZodObject<any> | z.ZodEffects<z.ZodObject<any>>
+>({
+  schema,
+  onSubmit,
+  fieldConfigs = {},
+  submitButtonText = "Submit",
+  formClassName = "flex flex-col gap-4",
+  submitButtonClassName,
+  form,
+  showSeparator = false,
+}: UniversalFormProps<T>) {
+  const id = generateRandomId();
+
+  const schemaShape =
+    "shape" in schema ? schema.shape : schema._def.schema.shape;
+
+  return (
+    <Form {...form}>
+      <form
+        id={id}
+        onSubmit={form?.handleSubmit(onSubmit)}
+        className={formClassName}
+      >
+        {Object.keys(schemaShape).map((fieldName, index) => {
+          const fieldSchema = schemaShape[fieldName];
+          const config = fieldConfigs[fieldName] || {};
+
+          if (!config.hidden) {
+            return renderField<typeof fieldSchema>(
+              index,
+              fieldName,
+              fieldSchema,
+              form.control,
+              fieldConfigs
+            );
+          }
+
+          return null;
+        })}
+      </form>
+      {showSeparator && <Separator />}
+      <div className='flex justify-end w-full'>
+        <Button form={id} type='submit' className={submitButtonClassName}>
+          {submitButtonText}
+        </Button>
+      </div>
+    </Form>
+  );
+}
+
+export default SharedForm;
+    ```
+</CodeBlockWrapper>
+
+2. Schema Configs
+
+<Note>
+This still has some things to be changed but it works fine for now.
+</Note>
+
+<CodeBlockWrapper>
+```ts
+import { z } from "zod";
+
+type ZodTypeWithRefine = z.ZodObject<any> | z.ZodEffects<z.ZodObject<any>>;
+
+export interface BaseConfig<T = any> {
+  label?: string;
+  placeholder?: string;
+  description?: string;
+  className?: string;
+  inputClassName?: string;
+  labelClassName?: string;
+  optional?: boolean;
+  hidden?: boolean;
+  default?: any;
+  onImageLoad?: (value: { file: File; previewUrl: string }) => void;
+  options?: { value: string | number; label: string }[];
+  previewClassName?: string;
+  uploadAreaClassName?: string;
+  metadata?: T;
+  rules?: {
+    required?: {
+      value: boolean;
+      message: string;
+    };
+  };
+}
+
+export type TextConfig = BaseConfig & {
+  type?: "text";
+  textType?: "small" | "huge" | "number" | "password";
+};
+
+export type NumberConfig = BaseConfig & {
+  type?: "number";
+};
+
+export type DateConfig = BaseConfig & {
+  type?: "date" | "datetime-local";
+};
+
+export type SelectConfig = BaseConfig & {
+  type?: "select";
+};
+
+export type ImageConfig = BaseConfig & {
+  type?: "image";
+  onImageLoad?: (value: { file: File; previewUrl: string }) => void;
+  previewClassName?: string;
+  uploadAreaClassName?: string;
+};
+
+export type FieldConfig =
+  | TextConfig
+  | NumberConfig
+  | DateConfig
+  | SelectConfig
+  | ImageConfig;
+
+export function createFieldConfigs<T extends ZodTypeWithRefine>(
+  schema: T,
+  configs: {
+    [K in keyof z.infer<T>]?: FieldConfig;
+  }
+) {
+  return configs;
+}
+
+```
+</CodeBlockWrapper>
+
+3. Utils 
+
+<CodeBlockWrapper>
+```ts
+export const magicRename = (string: string) => {
+  const normalizedString = string
+    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+    .toLowerCase();
+
+  return normalizedString
+    .split("_")
+    .map((word, index) =>
+      index === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word
+    )
+    .join(" ");
+};
+
+export const generateRandomId = (): string => {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+```
+</CodeBlockWrapper>
+
+4. Check the components
+
+<ComponentList />

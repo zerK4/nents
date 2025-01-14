@@ -22,6 +22,9 @@ import CodeBlock from "@/components/markdown/codeBlock";
 import { Button } from "@/components/ui/button";
 import { CodeBlockWrapper } from "@/components/codeBlockWrapper";
 import StepperFormExample from "@/components/examples/stepperFormExample";
+import ComponentList from "@/components/componentList";
+import SharedFormPreview from "@/components/sharedFormPreview";
+import { Separator } from "@/components/ui/separator";
 
 // add custom components
 const components: any = {
@@ -40,6 +43,9 @@ const components: any = {
   Button,
   CodeBlockWrapper,
   StepperFormExample,
+  ComponentList,
+  SharedFormPreview,
+  Separator,
 };
 
 // can be used for other pages like blogs, Guides etc

@@ -1,0 +1,154 @@
+---
+title: Configure the shared form
+description: Config shared form
+---
+
+<Tabs defaultValue="preview">
+    <TabsList>
+        <TabsTrigger value="preview">Preview form</TabsTrigger>
+        <TabsTrigger value="code">Code</TabsTrigger>
+    </TabsList>
+    <TabsContent value="preview">
+        <SharedFormPreview />
+    </TabsContent>
+    <TabsContent value="code">
+```tsx
+"use client";
+
+import { sharedFormUserSchema, userConfigs } from "@/schema/userSchema";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import SharedForm from "./forms/sharedForm/form";
+import { Separator } from "./ui/separator";
+
+function SharedFormPreview() {
+  const form = useForm<z.infer<typeof sharedFormUserSchema>>({
+    resolver: zodResolver(sharedFormUserSchema),
+    defaultValues: {
+      age: null,
+      email: "",
+      name: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  return (
+    <div className='border rounded-xl'>
+      <div className='px-4'>
+        <h2 className='text-2xl font-medium'>Shared Form</h2>
+      </div>
+      <Separator className='my-4' />
+      <div className=''>
+        <SharedForm
+          showSeparator
+          form={form}
+          schema={sharedFormUserSchema}
+          fieldConfigs={userConfigs()}
+          onSubmit={(data) => console.log(data, "the data")}
+          formClassName='grid grid-cols-2 gap-4 p-4'
+          submitButtonClassName='col-span-2 m-2'
+        />
+      </div>
+    </div>
+  );
+}
+
+export default SharedFormPreview;
+```
+        </TabsContent>
+</Tabs>
+
+1. Create a zod schema for your form
+
+```ts
+export const sharedFormUserSchema = z.object({
+  name: z.string().min(3),
+  email: z.string().email(),
+  password: z.string().min(8),
+  confirmPassword: z.string().min(8),
+  age: z.number().optional().nullable(),
+});
+
+```
+ 2. Add the configuration for the form using the `createFieldConfigs` function
+
+ ```ts
+export const userConfigs = (
+  defaultData?: z.infer<typeof sharedFormUserSchema>
+) =>
+  createFieldConfigs(sharedFormUserSchema, {
+    name: {
+      type: "text",
+      className: "col-span-2",
+      label: "Name",
+      placeholder: "Enter your name",
+      description: "Please enter your name",
+    },
+    email: {
+      type: "text",
+      className: "col-span-2",
+      label: "Email",
+      placeholder: "Enter your email",
+      description: "Please enter your email",
+    },
+    password: {
+      type: "text",
+      textType: "password",
+      label: "Password",
+      placeholder: "Enter your password",
+      description: "> 8 characters",
+    },
+    confirmPassword: {
+      type: "text",
+      textType: "password",
+      label: "Confirm Password",
+      placeholder: "Confirm your password",
+      description: "Please confirm your password",
+    },
+    age: {
+      label: "Age",
+      placeholder: "Enter your age",
+      type: "number",
+    },
+  });
+```
+
+ 3. Add the form component
+
+ ```tsx
+ function SharedFormPreview() {
+  const form = useForm<z.infer<typeof sharedFormUserSchema>>({
+    resolver: zodResolver(sharedFormUserSchema),
+    defaultValues: {
+      age: null,
+      email: "",
+      name: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  return (
+    <div className='border rounded-xl mt-4'>
+      <div className='px-4'>
+        <h2 className='text-2xl font-medium'>Shared Form</h2>
+      </div>
+      <Separator className='my-4' />
+      <div className=''>
+        <SharedForm
+          showSeparator
+          form={form}
+          schema={sharedFormUserSchema}
+          fieldConfigs={userConfigs()}
+          onSubmit={(data) => console.log(data, "the data")}
+          formClassName='grid grid-cols-2 gap-4 p-4'
+          submitButtonClassName='col-span-2 m-2'
+        />
+      </div>
+    </div>
+  );
+}
+ ```

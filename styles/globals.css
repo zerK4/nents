@@ -63,10 +63,11 @@
     --chart-5: 27 87% 67%;
   }
 }
+
 @layer base {
   * {
     @apply border-border;
-    font-family: "Space Mono", "Fira Code", "Nerd Font", monospace !important;
+    /* font-family: "Space Mono", "Fira Code", "Nerd Font", monospace !important; */
   }
   html {
     @apply scroll-smooth;
@@ -185,7 +186,7 @@ pre > code {
 }
 
 code {
-  @apply !border-zinc-600 !py-1.5 !px-2 !rounded-xl;
+  @apply !border-zinc-600 !py-0.5 !px-2 !rounded-lg;
 }
 
 /* Add this CSS for a simple spinner loader */

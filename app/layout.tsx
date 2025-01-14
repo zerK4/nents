@@ -1,12 +1,10 @@
-import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/contexts/theme-provider";
-import { Navbar } from "@/components/navbar";
-import { Space_Mono, Space_Grotesk } from "next/font/google";
-import { Footer } from "@/components/footer";
-import "@/styles/globals.css";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Analytics } from "@vercel/analytics/react";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import "@/styles/globals.css";
+import { Analytics } from "@vercel/analytics/react";
+import type { Metadata } from "next";
+import { Space_Grotesk, Space_Mono } from "next/font/google";
 
 const GeistSans = Space_Grotesk({
   subsets: ["latin"],
@@ -23,10 +21,9 @@ const GeistMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "queryfi",
-  metadataBase: new URL("https://queryfi.link"),
-  description:
-    "QueryFi is a powerful and flexible query builder designed for modern web applications. It simplifies crafting API queries with intuitive methods for filtering, sorting, pagination, relationships and more. With type-safe support, customizable query parameters, and seamless integration, QueryFi streamlines backend communication while keeping your code clean and maintainable.",
+  title: "ui.sepavl.com",
+  metadataBase: new URL("https://ui.sepavl.com"),
+  description: "Multi-step form, shared form and components for react",
 };
 
 export default function RootLayout({
@@ -47,13 +44,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider delayDuration={0}>
-            <Navbar />
             <Analytics />
             <main className='h-auto scroll-smooth'>
               {children}
               <div className='fixed bottom-0 left-0 z-50 flex items-center justify-center w-full h-0 font-medium leaving text-foreground bg-background' />
             </main>
-            <Footer />
           </TooltipProvider>
           <Toaster />
         </ThemeProvider>

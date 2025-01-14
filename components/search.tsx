@@ -1,20 +1,20 @@
 "use client";
 
-import { CommandIcon, FileIcon, SearchIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
-  DialogTrigger,
-  DialogClose,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { useEffect, useMemo, useRef, useState } from "react";
-import Anchor from "./anchor";
-import { advanceSearch, cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSearch } from "@/hooks/useSearchHook";
+import { advanceSearch, cn } from "@/lib/utils";
+import { CommandIcon, FileIcon, SearchIcon } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Anchor from "./anchor";
 
 export default function Search() {
   const [searchedInput, setSearchedInput] = useState("");
@@ -129,7 +129,7 @@ export default function Search() {
           </div>
         </div>
       </DialogTrigger>
-      <DialogContent className='p-0 max-w-[650px] sm:top-[38%] top-[45%] !rounded-md bg-accent border-primary/10 shadow-md shahdow-primary-20'>
+      <DialogContent className='overflow-x-hidden p-0 max-w-[650px] sm:top-[38%] top-[45%] !rounded-md bg-accent border-primary/10 shadow-md shahdow-primary-20'>
         <DialogTitle className='sr-only'>Search</DialogTitle>
         <DialogHeader>
           <input
@@ -153,29 +153,34 @@ export default function Search() {
             className='flex flex-col items-start overflow-y-auto sm:px-2 px-1 pb-4'
           >
             {filteredItems.map((item, index) => {
-              const level = (item.href.split("/").slice(1).length -
-                1) as keyof typeof paddingMap;
-              const paddingClass = paddingMap[level];
+              if (item.noLink) {
+                return null;
+              }
 
               return (
-                <DialogClose key={item.href} asChild>
+                <DialogClose key={item.title} asChild>
                   <Anchor
                     className={cn(
                       "dark:hover:bg-neutral-800 ease-linear duration-150 hover:bg-neutral-200 w-full px-3 rounded-sm text-sm flex items-center gap-2.5",
-                      paddingClass,
+                      // paddingClass,
                       index === activeIndex &&
                         "bg-neutral-200 dark:bg-neutral-800"
                     )}
                     href={`/docs${item.href}`}
+                    // style={{
+                    //   marginLeft: `${item.nest! * 10}px`,
+                    // }}
                   >
                     <div
                       className={cn(
-                        "flex items-center w-fit h-full gap-1.5 py-3 px-2",
-                        level > 1 && "border-l pl-4"
+                        "flex items-center w-fit h-full gap-1.5 py-3 px-2"
+                        // level > 1 && "border-l pl-4"
                       )}
                     >
                       {item.icon ?? <FileIcon size={16} />}
-                      <div>{highlightMatch(item.title)}</div>
+                      <div>
+                        {highlightMatch(item.parentTitle ?? item.title)}
+                      </div>
                     </div>
                   </Anchor>
                 </DialogClose>
@@ -187,10 +192,3 @@ export default function Search() {
     </Dialog>
   );
 }
-
-const paddingMap = {
-  1: "pl-2",
-  2: "pl-4",
-  3: "pl-10",
-  // Add more levels if needed
-} as const;

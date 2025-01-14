@@ -1,14 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, CircleXIcon, Loader2Icon } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { UseFormReturn } from "react-hook-form";
+import { FieldValues, UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import CmdCtrlButton from "../ui/cmdCtrlButton";
 
-export interface StepConfig<T extends Record<string, any> = any> {
+export interface StepConfig<T extends FieldValues = any> {
   title: string;
   component?: React.ReactNode | null;
   form?: UseFormReturn<T>;
@@ -18,7 +17,8 @@ export interface StepConfig<T extends Record<string, any> = any> {
 export interface MultistepFormProps {
   steps: StepConfig[];
   onSubmit: (values: Record<string, any>) => Promise<void>;
-  modalTitle: string;
+  title?: string;
+  header?: React.ReactNode;
   isSuccess?: boolean;
   isError?: boolean;
   isPending?: boolean;
@@ -37,7 +37,8 @@ const loadingLocal = () => (
 const MultistepForm: React.FC<MultistepFormProps> = ({
   steps,
   onSubmit,
-  modalTitle,
+  title,
+  header,
   isSuccess = false,
   isError = false,
   isPending = false,
@@ -50,6 +51,7 @@ const MultistepForm: React.FC<MultistepFormProps> = ({
 
   const currentStep = steps[step];
   const isFinalStep = step === steps.length - 1;
+  const isCreationStep = step === steps.length - 2;
 
   const isCurrentStepValid =
     currentStep?.schema?.safeParse(currentValues)?.success || false;
@@ -69,7 +71,8 @@ const MultistepForm: React.FC<MultistepFormProps> = ({
 
           return;
         }
-        handleSubmit();
+        if (step === steps.length - 2) handleSubmit();
+        else handleNext();
       }
     };
 
@@ -84,10 +87,13 @@ const MultistepForm: React.FC<MultistepFormProps> = ({
   const handleBack = () => setStep((prev) => prev - 1);
 
   const handleSubmit = async () => {
-    const allValues = steps.reduce((acc, step) => {
-      acc[step.title.toLowerCase()] = step.form?.getValues();
-      return acc;
-    }, {} as Record<string, any>);
+    const allValues = steps
+      .filter((step) => step.form)
+      .reduce((acc, step) => {
+        acc[step.title.toLowerCase()] = step.form?.getValues();
+
+        return acc;
+      }, {} as Record<string, any>);
 
     try {
       await onSubmit(allValues);
@@ -104,10 +110,16 @@ const MultistepForm: React.FC<MultistepFormProps> = ({
 
   return (
     <div>
-      <div className='space-y-8'>
-        <div className='p-4'>
-          <h2 className='text-2xl !p-0 !m-0 font-semibold'>{modalTitle}</h2>
-        </div>
+      <div className='flex flex-col gap-4'>
+        {title ? (
+          <div className='p-4'>
+            <h2 className='text-2xl !p-0 !m-0 font-semibold'>{title}</h2>
+          </div>
+        ) : header ? (
+          header
+        ) : (
+          "Multi step form"
+        )}
         <div className='flex items-center justify-between w-full p-6'>
           <div className='flex items-center justify-between w-full'>
             {steps.map((s, index) => (
@@ -141,7 +153,7 @@ const MultistepForm: React.FC<MultistepFormProps> = ({
                       exit={{ opacity: 0 }}
                       className='text-xs font-medium text-center mt-1 text-foreground absolute -top-8 whitespace-nowrap'
                     >
-                      {s.title}
+                      {s?.title ?? ""}
                     </motion.p>
                   )}
                 </div>
@@ -160,8 +172,6 @@ const MultistepForm: React.FC<MultistepFormProps> = ({
           </div>
         </div>
       </div>
-
-      {!isFinalStep && <Separator className='mb-4' />}
 
       <AnimatePresence mode='wait'>
         <motion.div
@@ -214,18 +224,13 @@ const MultistepForm: React.FC<MultistepFormProps> = ({
               )}
               <div className='flex items-center gap-4'>
                 <CmdCtrlButton
-                  message={
-                    step === steps.length - 2 ? undefined : "for next step"
-                  }
+                  message={isCreationStep ? undefined : "for next step"}
                 />
                 <Button
-                  variant={"grady"}
-                  onClick={
-                    step === steps.length - 2 ? handleSubmit : handleNext
-                  }
+                  onClick={isCreationStep ? handleSubmit : handleNext}
                   disabled={!isCurrentStepValid}
                 >
-                  {step === steps.length - 2 ? "Submit" : "Next"}
+                  {isCreationStep ? "Submit" : "Next"}
                 </Button>
               </div>
             </div>

@@ -7,6 +7,7 @@ import path from "path";
 const REGISTRY_BASE_PATH = "registry";
 const PUBLIC_FOLDER_BASE_PATH = "public/r";
 const COMPONENT_FOLDER_PATH = "components";
+const LIB_FOLDER_PATH = "lib";
 
 type File = z.infer<typeof registryItemFileSchema>;
 
@@ -33,17 +34,21 @@ const getComponentFiles = async (
       const filePath = `${REGISTRY_BASE_PATH}/${file}`;
 
       const pathHasComponentFolder = filePath.includes(COMPONENT_FOLDER_PATH);
+      const hasLibFolder = filePath.includes(LIB_FOLDER_PATH);
 
       try {
         const fileContent = await fs.readFile(filePath, "utf-8");
+        const content = fileContent.replaceAll("registry/", "");
         console.log(filePath, pathHasComponentFolder, "the path");
         // Create a component object using the passed component type
         const componentObject = {
           type: componentType,
-          content: fileContent,
+          content: content,
           path: file,
           target: `${
-            !pathHasComponentFolder ? COMPONENT_FOLDER_PATH + "/" : ""
+            !pathHasComponentFolder && !hasLibFolder
+              ? COMPONENT_FOLDER_PATH + "/"
+              : ""
           }${file}`,
         };
 

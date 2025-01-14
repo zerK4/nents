@@ -17,7 +17,7 @@ export default function DocsMenu({ isSheet = false }) {
           level: 0,
           isSheet,
         };
-        return <SubLink key={item.title + index} {...modifiedItems} />;
+        return <SubLink key={item.href + index} {...modifiedItems} />;
       })}
     </div>
   );

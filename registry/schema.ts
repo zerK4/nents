@@ -65,7 +65,7 @@ export const registryEntrySchema = z.object({
   docs: z.string().optional(),
 });
 
-export const registrySchema = z.array(registryEntrySchema);
+export const registrySchema = registryEntrySchema;
 
 export type RegistryEntry = z.infer<typeof registryEntrySchema>;
 
