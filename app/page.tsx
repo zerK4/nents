@@ -1,11 +1,10 @@
 "use client";
 
-import { delay, motion } from "framer-motion";
-import Link from "next/link";
+import { motion } from "framer-motion";
 import { Github } from "lucide-react";
-import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 export default function Page() {
   const router = useRouter();
