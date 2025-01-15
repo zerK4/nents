@@ -33,7 +33,7 @@ export default async function Image() {
           justifyContent: "center",
         }}
       >
-        sepavl
+        sepavl/ui
       </div>
     ),
     // ImageResponse options
